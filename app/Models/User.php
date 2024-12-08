@@ -4,13 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -18,8 +20,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'username',
+        'role',
         'password',
     ];
 
@@ -30,7 +32,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
@@ -41,8 +42,31 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followers',
+            'following_id', // Foreign key on followers table pointing to the followed user
+            'follower_id'   // Foreign key on followers table pointing to the follower
+        );
+    }
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followers',
+            'follower_id',  // Foreign key on followers table pointing to the follower
+            'following_id'  // Foreign key on followers table pointing to the followed user
+        );
     }
 }
