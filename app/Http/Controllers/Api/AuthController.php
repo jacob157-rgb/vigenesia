@@ -14,28 +14,37 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255|unique:users',
-            'password' => 'required|string|min:8'
+            'username' => 'required|max:255|unique:users',
+            'password' => 'required|min:8|confirmed'
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors(),
+                'message' => $validator->errors(),
             ], 422);
         }
 
         $user = User::create([
             'username' => $request->username,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'role' => 'user'
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $followerCount = $user->followers()->count();
+        $followingCount = $user->following()->count();
+
         return response()->json([
-            'data' => $user,
+            'success' => true,
+            'message' => 'register',
+            'data' => [
+                'user' => $user,
+                'follower_count' => $followerCount,
+                'following_count' => $followingCount,
+            ],
             'access_token' => $token,
-            'token_type' => 'Bearer'
         ], 200);
     }
 
@@ -49,13 +58,14 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors(),
+                'message' => $validator->errors(),
             ], 422);
         }
 
         if (! Auth::attempt($request->only('username', 'password'))) {
             return response()->json([
-                'message' => 'Unauthorized'
+                'success' => false,
+                'message' => 'unauthorized',
             ], 401);
         }
 
@@ -63,10 +73,18 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $followerCount = $user->followers()->count();
+        $followingCount = $user->following()->count();
+
         return response()->json([
-            'message' => 'Login Success',
+            'success' => true,
+            'message' => 'login',
+            'data' => [
+                'user' => $user,
+                'follower_count' => $followerCount,
+                'following_count' => $followingCount,
+            ],
             'access_token' => $token,
-            'token_type' => 'Bearer'
         ], 200);
     }
 
@@ -75,7 +93,8 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
 
         return response()->json([
-            'message' => 'Logout Success'
+            'success' => true,
+            'message' => 'logout'
         ], 200);
     }
 }

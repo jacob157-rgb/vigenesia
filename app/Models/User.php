@@ -3,8 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -51,22 +52,28 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
-    public function followers(): BelongsToMany
+    public function followers()
     {
-        return $this->belongsToMany(
-            User::class,
-            'followers',
-            'following_id', // Foreign key on followers table pointing to the followed user
-            'follower_id'   // Foreign key on followers table pointing to the follower
-        );
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id');
     }
-    public function following(): BelongsToMany
+
+    public function following()
     {
-        return $this->belongsToMany(
-            User::class,
-            'followers',
-            'follower_id',  // Foreign key on followers table pointing to the follower
-            'following_id'  // Foreign key on followers table pointing to the followed user
-        );
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id');
+    }
+
+    public function isFollowing(User $user)
+    {
+        return $this->following()->where('following_id', $user->id)->exists();
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
     }
 }

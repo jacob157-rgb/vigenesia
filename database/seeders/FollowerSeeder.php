@@ -15,8 +15,20 @@ class FollowerSeeder extends Seeder
     {
         Follower::insert([
             [
+                'follower_id' => 2, // User 1 follows User 3
+                'following_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'follower_id' => 2, // User 1 follows User 2
                 'following_id' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'follower_id' => 3, // User 2 follows User 1
+                'following_id' => 4,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -35,6 +47,24 @@ class FollowerSeeder extends Seeder
             [
                 'follower_id' => 3, // User 2 follows Admin
                 'following_id' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'follower_id' => 1,
+                'following_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'follower_id' => 5,
+                'following_id' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'follower_id' => 6,
+                'following_id' => 4,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
