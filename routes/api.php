@@ -16,9 +16,21 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::controller(UserController::class)->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        // User Data
         Route::get('/user', 'user')->name('getUser');
         Route::get('/user/{username}', 'username')->name('getUserByUsername');
         Route::get('/users', 'users')->name('getUsers');
+        // End User Data
+
+        // Follow Unfollow
+        Route::post('/follow/{username}', 'follow')->name('follow');
+        Route::post('/unfollow/{username}', 'unfollow')->name('unfollow');
+        // End Follow Unfollow
+
+        // Followers Followings
+        Route::get('/followers/{username}', 'followers')->name('followers');
+        Route::get('/followings/{username}', 'followings')->name('followings');
+        // End Followers Followings
     });
 });
 

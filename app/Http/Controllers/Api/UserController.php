@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    // User data related Controller
     public function user()
     {
         $user = User::find(Auth::id());
@@ -42,7 +43,6 @@ class UserController extends Controller
     public function username($username)
     {
         $user = User::where('username', $username)->first();
-
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -78,10 +78,13 @@ class UserController extends Controller
             ],
         ], 200);
     }
+    // End User data related Controller
 
-    public function follow(Request $request, $id)
+    // Following unffollow logic
+    public function follow(Request $request, $username)
     {
-        $userToFollow = User::find($id);
+        $userToFollow = User::where('username', $username)->first();
+
 
         if (!$userToFollow) {
             return response()->json([
@@ -91,7 +94,7 @@ class UserController extends Controller
         }
 
         $alreadyFollowing = Follower::where('follower_id', Auth::id())
-            ->where('following_id', $id)
+            ->where('following_id', $userToFollow->id)
             ->exists();
 
         if ($alreadyFollowing) {
@@ -103,18 +106,18 @@ class UserController extends Controller
 
         Follower::create([
             'follower_id' => Auth::id(),
-            'following_id' => $id,
+            'following_id' => $userToFollow->id,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'You are now following this user',
+            'message' => "You are now following '$username'",
         ], 200);
     }
 
-    public function unfollow(Request $request, $id)
+    public function unfollow(Request $request, $username)
     {
-        $userToUnfollow = User::find($id);
+        $userToUnfollow = User::where('username', $username)->first();
 
         if (!$userToUnfollow) {
             return response()->json([
@@ -124,7 +127,7 @@ class UserController extends Controller
         }
 
         $alreadyFollowing = Follower::where('follower_id', Auth::id())
-            ->where('following_id', $id)
+            ->where('following_id', $userToUnfollow->id)
             ->exists();
 
         if (!$alreadyFollowing) {
@@ -135,18 +138,18 @@ class UserController extends Controller
         }
 
         Follower::where('follower_id', Auth::id())
-            ->where('following_id', $id)
+            ->where('following_id', $userToUnfollow->id)
             ->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'You have unfollowed this user',
+            'message' =>  "You are now unfollowing '$username'",
         ], 200);
     }
 
-    public function followers(Request $request, $id)
+    public function followers(Request $request, $username)
     {
-        $user = User::find($id);
+        $user = User::where('username', $username)->first();
 
         if (!$user) {
             return response()->json([
@@ -159,13 +162,14 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $followers
+            'message' => 'followers',
+            'data' => $followers,
         ], 200);
     }
 
-    public function following(Request $request, $id)
+    public function followings(Request $request, $username)
     {
-        $user = User::find($id);
+        $user = User::where('username', $username)->first();
 
         if (!$user) {
             return response()->json([
@@ -174,11 +178,12 @@ class UserController extends Controller
             ], 404);
         }
 
-        $following = $user->following;
+        $followings = $user->following;
 
         return response()->json([
             'success' => true,
-            'data' => $following
+            'message' => 'followings',
+            'data' => $followings,
         ], 200);
     }
 }
