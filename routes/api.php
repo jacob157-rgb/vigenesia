@@ -34,18 +34,13 @@ Route::controller(UserController::class)->group(function () {
     });
 });
 
-// Route::controller(UserController::class)->group(function () {
-//     Route::get('/user/{id}', 'getUserById')->name('getUserById');
-//     Route::post('/follow/{id}', 'follow')->name('follow');
-//     Route::post('/unfollow/{id}', 'unfollow')->name('unfollow');
-//     Route::get('/followers/{id}', 'followers')->name('followers');
-//     Route::get('/following/{id}', 'following')->name('following');
-// })->middleware('auth:sanctum');
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::apiResource('posts', PostController::class);
-// });
+Route::controller(PostController::class)->group(
+    function () {
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/posts', 'index')->name('feeds');
+            Route::post('/post', 'store')->name('post');
+            Route::patch('/post/{id}', 'update')->name('postUpdate');
+            Route::delete('/post/{id}', 'destroy')->name('postDestroy');
+        });
+    }
+);

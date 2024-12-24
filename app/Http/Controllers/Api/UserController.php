@@ -31,7 +31,18 @@ class UserController extends Controller
 
     public function users()
     {
-        $users = User::inRandomOrder()->take(25)->get();
+        $userId = Auth::id();
+
+        $users = User::whereNotIn('id', function ($query) use ($userId) {
+            $query->select('following_id')
+                ->from('followers')
+                ->where('follower_id', $userId);
+        })
+
+            ->where('id', '!=', $userId)
+            ->inRandomOrder()
+            ->take(25)
+            ->get();
 
         return response()->json([
             'success' => true,
