@@ -25,7 +25,7 @@ class PostController extends Controller
                 $query->select('following_id')
                     ->from('followers')
                     ->where('follower_id', Auth::id());
-            })->latest()->take(20)->get()->map(function ($post) use ($user) {
+            })->inRandomOrder()->latest()->take(20)->get()->map(function ($post) use ($user) {
                 return [
                     'id' => $post->id,
                     'status' => $post->status,
